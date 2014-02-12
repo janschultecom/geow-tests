@@ -15,9 +15,7 @@
  ******************************************************************************/
 package org.geow.key.tests;
 
-import static org.geow.testkit.GeoTesting.createLat;
-import static org.geow.testkit.GeoTesting.createLon;
-import static org.geow.testkit.GeoTesting.createLonLatInRange;
+import static org.geow.testkit.GeoTesting.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,6 +28,12 @@ import org.geow.key.KeyGenerator;
 import org.geow.key.KeyGenerator.PRECISION;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class KeyGeneratorTest {
 	private static Logger logger = LogManager.getLogger(KeyGeneratorTest.class
@@ -50,7 +54,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testSequentialEncode13() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenMedium.encodeSequential(longitude, latitude);
@@ -64,7 +68,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testSequentialEncode30() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenHigh.encodeSequential(longitude, latitude);
@@ -77,7 +81,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testParallelEncode13() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenMedium.encodeParallel(longitude, latitude);
@@ -91,7 +95,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testParallelEncode30() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenHigh.encodeParallel(longitude, latitude);
@@ -104,7 +108,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testHashSplitting13() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenMedium.encodeParallel(longitude, latitude);
@@ -116,7 +120,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testHashSplitting30() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			Long hash = keyGenHigh.encodeParallel(longitude, latitude);
@@ -133,7 +137,7 @@ public class KeyGeneratorTest {
 		Long hash = keyGenMedium.encodeParallel(longitude, latitude);
 		Double[] boundingBox = keyGenMedium.getBoundingBox(hash);
 
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			logger.trace("Orig[{},{}]", longitude, latitude);
 			logger.trace("Diff[{},{}]", boundingBox[0], boundingBox[1]);
 			Double lon = (longitude - boundingBox[0])
@@ -169,7 +173,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testReduceParallelHash() {
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 
@@ -225,7 +229,7 @@ public class KeyGeneratorTest {
 	@Test
 	public void testGetGeoRangeLow() {
 
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 
@@ -259,7 +263,7 @@ public class KeyGeneratorTest {
 
 	@Test
 	public void testGetGeoRangeMedium() {
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			Double longitude = createLon();
 			Double latitude = createLat();
 			long medium = keyGenMedium.encodeParallel(longitude, latitude);
@@ -459,6 +463,22 @@ public class KeyGeneratorTest {
 				}
 			}
 		}
+	}
+	
+
+	@Test
+	public void testGetEncapsulatingRectangleBoundingBoxesIdentity() {
+		double[] point = createLonLat();
+		
+		long hash = keyGenUltra.encodeParallel(point);
+			
+		long[] rectangle = {hash,hash};
+		
+		long[][] encapsulation = keyGenUltra.getEncapsulatingRectangleBoundingBoxes(rectangle);
+	
+		assertThat(encapsulation.length, equalTo(1));
+		assertThat(encapsulation[0].length, equalTo(1));
+		assertThat(encapsulation[0][0], equalTo(hash));
 	}
 	
 }
